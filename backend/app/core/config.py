@@ -9,11 +9,15 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
+    # 애플리케이션 설정
     APP_NAME: str = "Sample FastAPI"
     APP_VERSION: str = "0.1.0"
     APP_LOG_LEVEL: str = "DEBUG"
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8080
+
+    # 데이터베이스 설정
+    DATABASE_URL: str
 
 settings = Settings()
     

@@ -2,6 +2,8 @@ import sys
 from loguru import logger
 from core.config import settings
 
+logger = logger.bind(name="smart-house-ai")
+
 def setup_logging():
     """앱 시작 시 1번만 호출하여 전체 로거(Logger) 설정을 초기화합니다."""
     
@@ -16,7 +18,15 @@ def setup_logging():
                  "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - " \
                  "<level>{message}</level>"
     
-    # 3. 설정 적용 (sys.stderr는 콘솔(터미널)을 의미합니다.)
+    # 3. 콘솔(터미널) 출력 설정 추가
+    logger.add(
+        sys.stderr,
+        format=log_format,
+        level=settings.APP_LOG_LEVEL.upper(),
+        colorize=True
+    )
+    
+    # 4. 파일 출력 설정 적용
     logger.add(
         "logs/app.log",             # 저장될 파일 경로 (프로젝트 최상단 logs/ 폴더 하드디스크에 쌓임)
         rotation="10 MB",           # [핵심] 파일이 10MB가 넘어가면 쪼개서 새 파일을 만듦 (서버 용량 폭발 방지)

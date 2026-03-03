@@ -8,14 +8,35 @@ from core.exceptions import (
     global_exception_handler
 )
 from fastapi.middleware.cors import CORSMiddleware
-from core.log import setup_logging 
-
+from core.log import setup_logging,logger
+from core.database import engine, Base
 from api.routes import api_router
+
 
 @asynccontextmanager        
 async def lifespan(app: FastAPI):
+    # 1. 로깅 초기화
     setup_logging()
+
+    # 2. DB 테이블 자동 생성 (앱 시작 시점)
+    # create_all()을 실행하기 전에 사용할 모델들이 반드시 임포트되어 있어야 합니다.
+    from models.agents import Agent  
+
+    try:
+        # 현재 생성하신 engine은 동기식(Sync) 엔진이므로 async with가 아닌 직접 실행해야 합니다.
+        Base.metadata.create_all(bind=engine)
+        logger.info("데이터베이스 테이블 자동 생성 완료")
+    except Exception as e:
+        logger.error(f"Database connection failed: {e}")
+        raise
+    
+    # --- 이 yield를 기준으로 위쪽 코드가 '서버 켜질 때', 아래쪽 코드가 '서버 꺼질 때' 실행됩니다 ---
     yield
+
+    # 3. DB 엔진 종료 (앱 종료 시점)
+    # 서버가 종료될 때 연결된 세션 풀을 안전하게 닫고 자원을 반환합니다.
+    engine.dispose()
+    logger.info("데이터베이스 커넥션 종료")
 
 app = FastAPI(
     title="Sample FastAPI",
