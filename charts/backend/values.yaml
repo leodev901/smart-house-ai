@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/jinsoooooooo/smart-house-ai/backend
+  repository: ghcr.io/leove901/smart-house-ai/backend
   tag: "latest"
   pullPolicy: Always
 
